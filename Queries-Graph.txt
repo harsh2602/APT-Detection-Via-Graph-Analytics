@@ -1,0 +1,132 @@
+//Load dataset
+
+LOAD CSV WITH HEADERS FROM "file:///C:/test.csv" AS line
+MERGE (n:MyNode {Name:line.Source})
+MERGE (m:MyNode {Name:line.Target})
+MERGE (n) -[:TO {dist:line.distance}]-> (m)
+
+//Count the number of nodes
+
+match (n:MyNode)
+return count(n)
+
+//Count the number of edges
+
+match (n:MyNode)-[r]->()
+return count(r)
+
+//Finding leaf nodes
+
+match (n:MyNode)-[r:TO]->(m)
+where not ((m)-->())
+return m
+
+//Finding root nodes
+
+match (m)-[r:TO]->(n:MyNode)
+where not (()-->(m))
+return m
+
+//Finding triangles
+
+match (a)-[:TO]->(b)-[:TO]->(c)-[:TO]->(a)
+return distinct a, b, c
+
+//Finding 2nd neighbors of particular node (D)
+
+match (a)-[:TO*..2]-(b)
+where a.Name='D'
+return distinct a, b
+
+//Viewing the graph
+
+match (n:MyNode)-[r]->(m)
+return n, r, m
+
+//Finding paths between specific nodes
+
+match p=(a)-[:TO*]-(c)
+where a.Name='H' and c.Name='P'
+return p 
+order by length(p)
+asc limit 1
+
+//Finding the length between specific nodes:
+
+match p=(a)-[:TO*]-(c)
+where a.Name='H' and c.Name='P'
+return length(p) limit 1
+
+//Finding a shortest path between specific nodes:
+
+match p=shortestPath((a)-[:TO*]-(c))
+where a.Name='A' and c.Name='P'
+return p, length(p) limit 1
+
+//All Shortest Paths:
+
+MATCH p = allShortestPaths((source)-[r:TO*]-(destination))
+WHERE source.Name='A' AND destination.Name = 'P'
+RETURN EXTRACT(n IN NODES(p)| n.Name) AS Paths
+
+//All Shortest Paths with Path Conditions:
+
+MATCH p = allShortestPaths((source)-[r:TO*]->(destination))
+WHERE source.Name='A' AND destination.Name = 'P' AND LENGTH(NODES(p)) > 5
+RETURN EXTRACT(n IN NODES(p)| n.Name) AS Paths,length(p)
+
+//Diameter of the graph:
+
+match (n:MyNode), (m:MyNode)
+where n <> m
+with n, m
+match p=shortestPath((n)-[*]->(m))
+return n.Name, m.Name, length(p)
+order by length(p) desc limit 1
+
+//Graph not containing a selected node:
+
+match (n)-[r:TO]->(m)
+where n.Name <> 'D' and m.Name <> 'D'
+return n, r, m
+
+//Shortest path over a Graph not containing a selected node:
+
+match p=shortestPath((a {Name: 'A'})-[:TO*]-(b {Name: 'P'}))
+where not('D' in (extract(n in nodes(p)|n.Name)))
+return p, length(p)
+
+// Find the outdegree of all nodes
+
+match (n:MyNode)-[r]->()
+return n.Name as Node, count(r) as Outdegree
+order by Outdegree
+union
+match (a:MyNode)-[r]->(leaf)
+where not((leaf)-->())
+return leaf.Name as Node, 0 as Outdegree
+
+// Find the indegree of all nodes
+
+match (n:MyNode)<-[r]-()
+return n.Name as Node, count(r) as Indegree
+order by Indegree
+union
+match (a:MyNode)<-[r]-(root)
+where not((root)<--())
+return root.Name as Node, 0 as Indegree
+
+// Find the degree of all nodes
+
+match (n:MyNode)-[r]-()
+return n.Name, count(distinct r) as degree
+order by degree
+
+// Construct the Adjacency Matrix of the graph
+
+match (n:MyNode), (m:MyNode)
+return n.Name, m.Name,
+case
+when (n)-->(m) then 1
+else 0
+end as value

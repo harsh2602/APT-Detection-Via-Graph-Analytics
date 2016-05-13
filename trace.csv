@@ -1,0 +1,11 @@
+ret_val,ret_time,call_time,process_name,pid,tid,syscall,arg1,arg2
+-2 (ENOENT),46979740,46943237,stapio,9760,9760,execve,/usr/local/sbin/python,[python
+-2 (ENOENT),47011324,46998247,stapio,9760,9760,execve,/usr/local/bin/python,[python
+-2 (ENOENT),47038020,47026547,stapio,9760,9760,execve,/usr/sbin/python,[python
+0,47499096,47052650,stapio,9760,9760,execve,/usr/bin/python,[python
+-2 (ENOENT),47630449,47603759,python,9760,9760,access,/etc/ld.so.nohwcap,F_OK
+0xffffffffb777f000,47663946,47647766,python,9760,9760,mmap2,0x0,8192
+-2 (ENOENT),47705599,47694499,python,9760,9760,access,/etc/ld.so.preload,R_OK
+3,47763522,47736229,python,9760,9760,open,/etc/ld.so.cache,O_RDONLY|O_CLOEXEC
+0,47786509,47773552,python,9760,9760,fstat,3,0xffffffffbf82d5a0
+0xffffffffb776c000,47806392,47795722,python,9760,9760,mmap2,0x0,77571
